@@ -23,12 +23,14 @@ namespace SplitProcessor
 
         private string RetrieveHeader()
         {
+            var header = new StringBuilder();
             while (!this.reader.EndOfStream)
             {
                 var line = this.reader.ReadLine();
+                header.AppendLine(line);
                 if (line.Contains("Date") && line.Contains("Payee") && line.Contains("Amount"))
                 {
-                    return line;
+                    return header.ToString();
                 }
             }
             throw new ApplicationException("Can't find a header line");
