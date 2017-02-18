@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,20 @@ namespace SplitProcessor
     {
         static void Main(string[] args)
         {
+            var inputLines = new NonBlankFileLines();
+
+            using (var writer = new StreamWriter(@"C:\temp\output123.txt"))
+            {
+
+                writer.WriteLine(inputLines.GetHeader);
+                foreach(var line in inputLines)
+                {
+                    writer.WriteLine(line);
+                }
+            }
+
         }
+
+
     }
 }
