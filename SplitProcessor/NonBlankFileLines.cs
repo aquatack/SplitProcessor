@@ -13,6 +13,7 @@ namespace SplitProcessor
         private StreamReader reader;
         private string header;
 
+
         public string GetHeader { get { return this.header; } }
 
         public NonBlankFileLines(string filename = @"C:\temp\123.csv")

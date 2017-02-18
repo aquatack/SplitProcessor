@@ -16,7 +16,7 @@ namespace SplitProcessor
             using (var writer = new StreamWriter(@"C:\temp\output123.txt"))
             {
 
-                writer.WriteLine(inputLines.GetHeader);
+                writer.Write(inputLines.GetHeader);
                 foreach(var line in inputLines)
                 {
                     writer.WriteLine(line);
