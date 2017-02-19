@@ -17,9 +17,10 @@ namespace SplitProcessor
             {
 
                 writer.Write(inputLines.GetHeader);
-                foreach(var line in inputLines)
+                var trans = new Transactions(inputLines);
+                foreach(var line in trans)
                 {
-                    writer.WriteLine(line);
+                    writer.Write(line);
                 }
             }
 
