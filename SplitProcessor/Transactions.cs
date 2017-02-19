@@ -30,6 +30,8 @@ namespace SplitProcessor
                     else
                     {
                         inSplit = false;
+                        // also need to add the next line
+                        builder.AppendLine(line);
                         yield return builder.ToString();
                         
                     }
