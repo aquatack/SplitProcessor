@@ -23,15 +23,27 @@ namespace SplitProcessor
 
         public string GetSplitTransactionString()
         {
+            var builder = new StringBuilder();
+            builder.AppendLine(this.HeaderString);
             // ToDo: get the coloumn indexes from the file header.
             // parse the header string to get: Num (0), Date(1), Payee(2) and Account(3)
             foreach(var line in this.SplitSubLines)
             {
                 var parts = line.Split(',');
-                if (string.IsNullOrWhiteSpace(parts[0]))
-                    parts[0] = this.HeaderString.Split(',')[0];
+                ReplaceSegments(0, parts);
+                ReplaceSegments(1, parts);
+                ReplaceSegments(2, parts);
+                ReplaceSegments(3, parts);
+                var result = parts.Aggregate((x, y) => { return x + "," + y; });
+                builder.AppendLine(result);
             }
-            return null;
+            return builder.ToString();
+        }
+
+        private void ReplaceSegments(int index, string[] parts)
+        {
+            if (string.IsNullOrWhiteSpace(parts[index]))
+                parts[index] = this.HeaderString.Split(',')[index];
         }
     }
 }

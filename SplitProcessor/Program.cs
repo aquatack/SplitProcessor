@@ -12,10 +12,9 @@ namespace SplitProcessor
         static void Main(string[] args)
         {
             var inputLines = new NonBlankFileLines();
-
+            
             using (var writer = new StreamWriter(@"C:\temp\output123.txt"))
             {
-
                 writer.Write(inputLines.GetHeader);
                 var trans = new Transactions(inputLines);
                 foreach(var line in trans)

@@ -40,9 +40,7 @@ namespace SplitProcessor
 
                 if (!IsSplitHeader(line))
                 {
-
                     yield return line + Environment.NewLine;
-
                 }
                 else
                 {
