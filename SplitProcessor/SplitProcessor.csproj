@@ -47,7 +47,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="NonBlankFileLines.cs" />
     <Compile Include="SplitTransaction.cs" />
-    <Compile Include="Transactions.cs" />
+    <Compile Include="StandardTransaction.cs" />
+    <Compile Include="Transaction.cs" />
+    <Compile Include="TransactionFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -2,26 +2,66 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace SplitProcessor
 {
-    public class SplitTransaction
+    public class SplitTransaction : Transaction
     {
-        public string HeaderString { get; set; }
+        private string headerString;
+        public string HeaderString
+        {
+            get
+            {
+                return this.headerString;
+            }
+
+            set
+            {
+                if (!string.IsNullOrEmpty(this.headerString))
+                    throw new ApplicationException();
+                this.headerString = value;
+            }
+        }
+
         private List<string> SplitSubLines;
+        private bool TransComplete;
 
         public SplitTransaction()
         {
             this.SplitSubLines = new List<string>();
+            TransComplete = false;
         }
 
-        public void AddSplitSubLine(string subline)
+        public override bool AddLine(string subline)
         {
-            this.SplitSubLines.Add(subline);
+            //this.TransComplete = false;
+            if (IsSplitHeader(subline) && string.IsNullOrEmpty(this.HeaderString))
+            {
+                this.HeaderString = subline;
+            }
+            else if (IsSplitSubEntry(subline))
+            {
+                this.SplitSubLines.Add(subline);
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(this.HeaderString))
+                    this.TransComplete = true;
+                else
+                    this.TransComplete = false;
+
+                return false;
+            }
+
+            return true;
         }
 
-        public string GetSplitTransactionString()
+        public override bool TransactionComplete()
+        {
+            return this.TransComplete;
+        }
+
+        public override string FullTransactionString()
         {
             var builder = new StringBuilder();
             builder.AppendLine(this.HeaderString);
@@ -44,6 +84,38 @@ namespace SplitProcessor
         {
             if (string.IsNullOrWhiteSpace(parts[index]))
                 parts[index] = this.HeaderString.Split(',')[index];
+        }
+
+        public static bool IsSplitHeader(string line)
+        {
+            if (line.Contains(",Split/Multiple Categories,"))
+                return true;
+            return false;
+        }
+
+        /// <summary>
+        /// Uses the presence or absence of a valid date in the line to determine whether
+        /// this is part of a multi-line split transaction.
+        /// </summary>
+        /// <remarks>Note that this does not detect the Split header.</remarks>
+        /// <param name="line">line to examins</param>
+        /// <returns><c>true</c> if part of a split transaction.</returns>
+        public static bool IsSplitSubEntry(string line)
+        {
+            if (string.IsNullOrWhiteSpace(line))
+                return false;
+
+            var stringSections = line.Split(',');
+            if (stringSections.Count() == 1)
+                return false;
+
+            bool dateFound = false;
+            foreach (var substring in stringSections)
+            {
+                DateTime date;
+                dateFound |= DateTime.TryParse(substring, out date);
+            }
+            return !dateFound;
         }
     }
 }

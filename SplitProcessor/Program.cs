@@ -16,7 +16,7 @@ namespace SplitProcessor
             using (var writer = new StreamWriter(@"C:\temp\output123.txt"))
             {
                 writer.Write(inputLines.GetHeader);
-                var trans = new Transactions(inputLines);
+                var trans = new TransactionFactory(inputLines);
                 foreach(var line in trans)
                 {
                     writer.Write(line);
