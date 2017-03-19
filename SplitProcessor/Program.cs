@@ -11,9 +11,20 @@ namespace SplitProcessor
     {
         static void Main(string[] args)
         {
-            var inputLines = new NonBlankFileLines();
-            
-            using (var writer = new StreamWriter(@"C:\temp\output123.txt"))
+            string inputPath;
+            if (args.Length != 1)
+                return;
+            else
+                inputPath = args[0];
+
+            var inputLines = new NonBlankFileLines(inputPath);
+
+            var inputDir = Path.GetDirectoryName(inputPath);
+            var inputFileName = Path.GetFileNameWithoutExtension(inputPath);
+            var inputFileNameExtension = Path.GetExtension(inputPath);
+            var outputPath = Path.Combine(inputDir, inputFileName + "_Processed" + inputFileNameExtension);
+
+            using (var writer = new StreamWriter(outputPath))
             {
                 writer.Write(inputLines.GetHeader);
                 var trans = new TransactionFactory(inputLines);
