@@ -7,45 +7,45 @@ namespace SplitProcessor
 {
     public class SplitTransaction : Transaction
     {
-        private string headerString;
-        public string HeaderString
+        private CSVEntry headerEntry;
+        public CSVEntry HeaderEntry
         {
             get
             {
-                return this.headerString;
+                return this.headerEntry;
             }
 
             set
             {
-                if (!string.IsNullOrEmpty(this.headerString))
+                if (this.headerEntry != null)
                     throw new ApplicationException();
-                this.headerString = value;
+                this.headerEntry = value;
             }
         }
 
-        private List<string> SplitSubLines;
+        private List<CSVEntry> SplitSubEntries;
         private bool TransComplete;
 
         public SplitTransaction()
         {
-            this.SplitSubLines = new List<string>();
+            this.SplitSubEntries = new List<CSVEntry>();
             TransComplete = false;
         }
 
-        public override bool AddLine(string subline)
+        public override bool AddEntry(CSVEntry subentry)
         {
             //this.TransComplete = false;
-            if (IsSplitHeader(subline) && string.IsNullOrEmpty(this.HeaderString))
+            if (IsSplitHeader(subentry) && this.HeaderEntry == null)
             {
-                this.HeaderString = subline;
+                this.HeaderEntry = subentry;
             }
-            else if (IsSplitSubEntry(subline))
+            else if (IsSplitSubEntry(subentry))
             {
-                this.SplitSubLines.Add(subline);
+                this.SplitSubEntries.Add(subentry);
             }
             else
             {
-                if (!string.IsNullOrEmpty(this.HeaderString))
+                if (this.HeaderEntry != null)
                     this.TransComplete = true;
                 else
                     this.TransComplete = false;
@@ -64,31 +64,37 @@ namespace SplitProcessor
         public override string FullTransactionString()
         {
             var builder = new StringBuilder();
-            builder.AppendLine(this.HeaderString);
+            builder.AppendLine(this.HeaderEntry.ToDelimitedString());
             // ToDo: get the coloumn indexes from the file header.
             // parse the header string to get: Num (0), Date(1), Payee(2) and Account(3)
-            foreach(var line in this.SplitSubLines)
+            foreach(var line in this.SplitSubEntries)
             {
-                var parts = line.Split(',');
-                ReplaceSegments(0, parts);
-                ReplaceSegments(1, parts);
-                ReplaceSegments(2, parts);
-                ReplaceSegments(3, parts);
-                var result = parts.Aggregate((x, y) => { return x + "," + y; });
-                builder.AppendLine(result);
+                line.Number = this.HeaderEntry.Number;
+                line.TransactionDate = this.HeaderEntry.TransactionDate;
+                line.Payee = this.HeaderEntry.Payee;
+                line.Account = this.HeaderEntry.Account;
+                builder.AppendLine(line.ToDelimitedString());
+
+                //var parts = line.Split(',');
+                //ReplaceSegments(0, parts);
+                //ReplaceSegments(1, parts);
+                //ReplaceSegments(2, parts);
+                //ReplaceSegments(3, parts);
+                //var result = parts.Aggregate((x, y) => { return x + "," + y; });
+                //builder.AppendLine(result);
             }
             return builder.ToString();
         }
 
-        private void ReplaceSegments(int index, string[] parts)
-        {
-            if (string.IsNullOrWhiteSpace(parts[index]))
-                parts[index] = this.HeaderString.Split(',')[index];
-        }
+        //private void ReplaceSegments(int index, string[] parts)
+        //{
+        //    if (string.IsNullOrWhiteSpace(parts[index]))
+        //        parts[index] = this.HeaderEntry.Split(',')[index];
+        //}
 
-        public static bool IsSplitHeader(string line)
+        public static bool IsSplitHeader(CSVEntry entry)
         {
-            if (line.Contains(",Split/Multiple Categories,"))
+            if (entry.CategoryString.Contains("Split/Multiple Categories"))
                 return true;
             return false;
         }
@@ -98,24 +104,26 @@ namespace SplitProcessor
         /// this is part of a multi-line split transaction.
         /// </summary>
         /// <remarks>Note that this does not detect the Split header.</remarks>
-        /// <param name="line">line to examins</param>
+        /// <param name="entry">line to examins</param>
         /// <returns><c>true</c> if part of a split transaction.</returns>
-        public static bool IsSplitSubEntry(string line)
+        public static bool IsSplitSubEntry(CSVEntry entry)
         {
-            if (string.IsNullOrWhiteSpace(line))
+            if (entry == null)
                 return false;
 
-            var stringSections = line.Split(',');
-            if (stringSections.Count() == 1)
-                return false;
+            //var stringSections = entry.Split(',');
+            //if (stringSections.Count() == 1)
+            //    return false;
 
-            bool dateFound = false;
-            foreach (var substring in stringSections)
-            {
-                DateTime date;
-                dateFound |= DateTime.TryParse(substring, out date);
-            }
-            return !dateFound;
+            return !entry.TransactionDate.HasValue;
+
+            //bool dateFound = false;
+            //foreach (var substring in stringSections)
+            //{
+            //    DateTime date;
+            //    dateFound |= DateTime.TryParse(substring, out date);
+            //}
+            //return !dateFound;
         }
     }
 }

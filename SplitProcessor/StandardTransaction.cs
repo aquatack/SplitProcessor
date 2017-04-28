@@ -8,13 +8,13 @@ namespace SplitProcessor
 {
     class StandardTransaction : Transaction
     {
-        private string transactionLine;
+        private CSVEntry transactionLine;
         private bool transComplete = false;
-        public override bool AddLine(string line)
+        public override bool AddEntry(CSVEntry entry)
         {
-            if (IsStandardTransaction(line))
+            if (IsStandardTransaction(entry))
             {
-                this.transactionLine = line;
+                this.transactionLine = entry;
                 this.transComplete = true;
                 return true;
             }
@@ -28,12 +28,12 @@ namespace SplitProcessor
 
         public override string FullTransactionString()
         {
-            return this.transactionLine + Environment.NewLine;
+            return this.transactionLine.ToDelimitedString() + Environment.NewLine;
         }
 
-        public static bool IsStandardTransaction(string line)
+        public static bool IsStandardTransaction(CSVEntry entry)
         {
-            return !SplitTransaction.IsSplitHeader(line) && !SplitTransaction.IsSplitSubEntry(line);
+            return !SplitTransaction.IsSplitHeader(entry) && !SplitTransaction.IsSplitSubEntry(entry);
         }
     }
 }

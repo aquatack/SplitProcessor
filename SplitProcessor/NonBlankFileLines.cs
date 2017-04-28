@@ -6,13 +6,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using FileHelpers;
+
 namespace SplitProcessor
 {
-    public class NonBlankFileLines : IEnumerable<string>, IDisposable
+    public class NonBlankFileLines : IEnumerable<CSVEntry>, IDisposable
     {
         private StreamReader reader;
         private string header;
-
+        private IEnumerable<CSVEntry> body;
 
         public string GetHeader { get { return this.header; } }
 
@@ -20,6 +22,14 @@ namespace SplitProcessor
         {
             this.reader = new StreamReader(filename);
             this.header = RetrieveHeader();
+            RetrieveBody(this.reader);
+        }
+
+        private void RetrieveBody(StreamReader reader)
+        {
+            var engine = new FileHelperEngine<CSVEntry>();
+            engine.ErrorManager.ErrorMode = ErrorMode.IgnoreAndContinue;
+            this.body = engine.ReadStream(reader);
         }
 
         private string RetrieveHeader()
@@ -49,14 +59,15 @@ namespace SplitProcessor
             this.reader.Close();
         }        
 
-        public IEnumerator<string> GetEnumerator()
+        public IEnumerator<CSVEntry> GetEnumerator()
         {
-            while (!this.reader.EndOfStream)
-            {
-                var line = this.reader.ReadLine();
-                if (!string.IsNullOrWhiteSpace(line) && !IsFooter(line))
-                    yield return line;
-            }
+            return this.body.GetEnumerator();
+            //while (!this.reader.EndOfStream)
+            //{
+            //    var line = this.reader.ReadLine();
+            //    if (!string.IsNullOrWhiteSpace(line) && !IsFooter(line))
+            //        yield return line;
+            //}
         }
 
         IEnumerator IEnumerable.GetEnumerator()

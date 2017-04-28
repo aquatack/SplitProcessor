@@ -36,6 +36,10 @@
     <ApplicationIcon>Ebiene-E-Commerce-Cash-register.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FileHelpers, Version=3.1.5.0, Culture=neutral, PublicKeyToken=3e0c08d59cc3d657, processorArchitecture=MSIL">
+      <HintPath>..\packages\FileHelpers.3.1.5\lib\net45\FileHelpers.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -46,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CSVEntry.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="NonBlankFileLines.cs" />
@@ -56,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Ebiene-E-Commerce-Cash-register.ico" />

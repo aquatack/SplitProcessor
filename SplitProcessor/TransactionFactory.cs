@@ -9,9 +9,9 @@ namespace SplitProcessor
 {
     public class TransactionFactory : IEnumerable<string>
     {
-        private IEnumerable<string> fileLines;
+        private IEnumerable<CSVEntry> fileLines;
         //private IEnumerator fileLinesEnumerator;
-        public TransactionFactory(IEnumerable<string> fileLines)
+        public TransactionFactory(IEnumerable<CSVEntry> fileLines)
         {
             this.fileLines = fileLines;
             //this.fileLinesEnumerator = fileLines.GetEnumerator();
@@ -21,23 +21,23 @@ namespace SplitProcessor
         {
             Queue<string> tQueue = new Queue<string>();
             Transaction currentTransaction = null;
-            foreach(var inputLine in this.fileLines)
+            foreach (var inputLine in this.fileLines)
             {
                 if (currentTransaction == null)
                     currentTransaction = GetTranaction(inputLine);
 
                 // If this fails, the split is complete. add to the queue.
-                if (!currentTransaction.AddLine(inputLine))
+                if (!currentTransaction.AddEntry(inputLine))
                 {
                     if (!currentTransaction.TransactionComplete())
                         throw new ApplicationException();
 
                     tQueue.Enqueue(currentTransaction.FullTransactionString());
                     currentTransaction = GetTranaction(inputLine);
-                    if (!currentTransaction.AddLine(inputLine))
+                    if (!currentTransaction.AddEntry(inputLine))
                         throw new ApplicationException();
                 }
-                while(tQueue.Any())
+                while (tQueue.Any())
                 {
                     yield return tQueue.Dequeue();
                 }
@@ -49,61 +49,21 @@ namespace SplitProcessor
             }
         }
 
-        private Transaction GetTranaction(string inputLine)
+        private Transaction GetTranaction(CSVEntry entry)
         {
-            if (StandardTransaction.IsStandardTransaction(inputLine))
+            if (StandardTransaction.IsStandardTransaction(entry))
                 return new StandardTransaction();
-            else if (SplitTransaction.IsSplitHeader(inputLine))
+            else if (SplitTransaction.IsSplitHeader(entry))
                 return new SplitTransaction();
-            else if (SplitTransaction.IsSplitSubEntry(inputLine))
+            else if (SplitTransaction.IsSplitSubEntry(entry))
                 throw new ApplicationException();
             else
                 throw new ApplicationException();
         }
 
-        //public IEnumerator<string> GetEnumerator()
-        //{
-        //    bool inSplit = false;
-        //    var builder = new StringBuilder();
-        //    foreach (var line in this.fileLines)
-        //    {
-        //        if(inSplit)
-        //        {
-        //            if (IsSplitSubEntry(line))
-        //                builder.AppendLine("!!!!"+line);
-        //            else
-        //            {
-        //                inSplit = false;
-        //                // also need to add the next line
-        //                builder.AppendLine(line);
-        //                yield return builder.ToString();
-
-        //            }
-        //            continue;
-        //        }
-
-        //        if (!IsSplitHeader(line))
-        //        {
-        //            yield return line + Environment.NewLine;
-        //        }
-        //        else
-        //        {
-        //            // just detected a split header.
-        //            builder = new StringBuilder();
-        //            builder.AppendLine(line);
-        //            inSplit = true;
-        //        }
-
-        //    }
-        //}
-
-
-
         IEnumerator IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();
         }
-
-
     }
 }

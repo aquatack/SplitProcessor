@@ -17,7 +17,7 @@ namespace SplitProcessor
             else
                 inputPath = args[0];
 
-            var inputLines = new NonBlankFileLines(inputPath);
+            var inputEntries = new NonBlankFileLines(inputPath);
 
             var inputDir = Path.GetDirectoryName(inputPath);
             var inputFileName = Path.GetFileNameWithoutExtension(inputPath);
@@ -26,8 +26,8 @@ namespace SplitProcessor
 
             using (var writer = new StreamWriter(outputPath))
             {
-                writer.Write(inputLines.GetHeader);
-                var trans = new TransactionFactory(inputLines);
+                writer.Write(inputEntries.GetHeader);
+                var trans = new TransactionFactory(inputEntries);
                 foreach(var line in trans)
                 {
                     writer.Write(line);

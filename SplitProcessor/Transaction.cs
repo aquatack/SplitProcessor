@@ -8,7 +8,7 @@ namespace SplitProcessor
 {
     public abstract class Transaction
     {
-        public abstract bool AddLine(string line);
+        public abstract bool AddEntry(CSVEntry line);
         public abstract bool TransactionComplete();
         public abstract string FullTransactionString();
     }
