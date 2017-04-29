@@ -10,7 +10,7 @@ using FileHelpers;
 
 namespace SplitProcessor
 {
-    public class NonBlankFileLines : IEnumerable<CSVEntry>, IDisposable
+    public class NonBlankFileLines : IEnumerable<string>, IDisposable
     {
         private StreamReader reader;
         private string header;
@@ -22,7 +22,7 @@ namespace SplitProcessor
         {
             this.reader = new StreamReader(filename);
             this.header = RetrieveHeader();
-            RetrieveBody(this.reader);
+            //RetrieveBody(this.reader);
         }
 
         private void RetrieveBody(StreamReader reader)
@@ -59,15 +59,15 @@ namespace SplitProcessor
             this.reader.Close();
         }        
 
-        public IEnumerator<CSVEntry> GetEnumerator()
+        public IEnumerator<string> GetEnumerator()
         {
-            return this.body.GetEnumerator();
-            //while (!this.reader.EndOfStream)
-            //{
-            //    var line = this.reader.ReadLine();
-            //    if (!string.IsNullOrWhiteSpace(line) && !IsFooter(line))
-            //        yield return line;
-            //}
+            //return this.body.GetEnumerator();
+            while (!this.reader.EndOfStream)
+            {
+                var line = this.reader.ReadLine();
+                if (!string.IsNullOrWhiteSpace(line) && !IsFooter(line))
+                    yield return line;
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator()

@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using FileHelpers;
+
 namespace SplitProcessor
 {
     public class SplitTransaction : Transaction
     {
         private CSVEntry headerEntry;
+        private FileHelperEngine<CSVEntry> engine = new FileHelperEngine<CSVEntry>();
         public CSVEntry HeaderEntry
         {
             get
@@ -64,16 +67,18 @@ namespace SplitProcessor
         public override string FullTransactionString()
         {
             var builder = new StringBuilder();
-            builder.AppendLine(this.HeaderEntry.ToDelimitedString());
+            builder.AppendLine(this.engine.WriteString(new[] { this.HeaderEntry }).TrimEnd('\r', '\n'));
+            //builder.AppendLine(this.HeaderEntry.ToDelimitedString());
+
             // ToDo: get the coloumn indexes from the file header.
             // parse the header string to get: Num (0), Date(1), Payee(2) and Account(3)
-            foreach(var line in this.SplitSubEntries)
+            foreach (var entry in this.SplitSubEntries)
             {
-                line.Number = this.HeaderEntry.Number;
-                line.TransactionDate = this.HeaderEntry.TransactionDate;
-                line.Payee = this.HeaderEntry.Payee;
-                line.Account = this.HeaderEntry.Account;
-                builder.AppendLine(line.ToDelimitedString());
+                entry.Number = this.HeaderEntry.Number;
+                entry.TransactionDate = this.HeaderEntry.TransactionDate;
+                entry.Payee = this.HeaderEntry.Payee;
+                entry.Account = this.HeaderEntry.Account;
+                builder.AppendLine(this.engine.WriteString(new[] { entry }).TrimEnd('\r', '\n'));
 
                 //var parts = line.Split(',');
                 //ReplaceSegments(0, parts);
@@ -83,6 +88,9 @@ namespace SplitProcessor
                 //var result = parts.Aggregate((x, y) => { return x + "," + y; });
                 //builder.AppendLine(result);
             }
+
+            
+            //engi
             return builder.ToString();
         }
 

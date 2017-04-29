@@ -4,12 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using FileHelpers;
+
 namespace SplitProcessor
 {
     class StandardTransaction : Transaction
     {
         private CSVEntry transactionLine;
         private bool transComplete = false;
+        private FileHelperEngine<CSVEntry> helperEngine = new FileHelperEngine<CSVEntry>();
+
         public override bool AddEntry(CSVEntry entry)
         {
             if (IsStandardTransaction(entry))
@@ -28,7 +32,9 @@ namespace SplitProcessor
 
         public override string FullTransactionString()
         {
-            return this.transactionLine.ToDelimitedString() + Environment.NewLine;
+            var transactionString = this.helperEngine.WriteString(new[] { this.transactionLine });
+            //return this.transactionLine.ToDelimitedString() + Environment.NewLine;
+            return transactionString;// + Environment.NewLine;
         }
 
         public static bool IsStandardTransaction(CSVEntry entry)

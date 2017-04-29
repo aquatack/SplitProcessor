@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
+using FileHelpers;
 
 namespace SplitProcessor
 {
@@ -17,25 +16,28 @@ namespace SplitProcessor
             else
                 inputPath = args[0];
 
-            var inputEntries = new NonBlankFileLines(inputPath);
-
             var inputDir = Path.GetDirectoryName(inputPath);
             var inputFileName = Path.GetFileNameWithoutExtension(inputPath);
             var inputFileNameExtension = Path.GetExtension(inputPath);
             var outputPath = Path.Combine(inputDir, inputFileName + "_Processed" + inputFileNameExtension);
 
+            var lines = new NonBlankFileLines(inputPath);
+
             using (var writer = new StreamWriter(outputPath))
             {
-                writer.Write(inputEntries.GetHeader);
-                var trans = new TransactionFactory(inputEntries);
-                foreach(var line in trans)
+                writer.Write(lines.GetHeader);
+
+                var engine = new FileHelperEngine<CSVEntry>();
+                var aggregateLines = lines.Aggregate((working, next) => { return working + Environment.NewLine + next; });
+                aggregateLines = aggregateLines.TrimEnd('\r','\n','\0');
+                var entries = engine.ReadString(aggregateLines);
+
+                var trans = new TransactionFactory(entries);
+                foreach (var line in trans)
                 {
                     writer.Write(line);
                 }
             }
-
         }
-
-
     }
 }
