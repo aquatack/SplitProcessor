@@ -27,10 +27,10 @@ namespace SplitProcessor
             {
                 writer.Write(lines.GetHeader);
                 var entries = GetEntriesFromLines(lines);
-                var transactions = new TransactionFactory(entries);
-                foreach (var line in transactions)
+                var transactionFactory = new TransactionFactory(entries);
+                foreach (var singleTransaction in transactionFactory)
                 {
-                    writer.Write(line);
+                    writer.Write(singleTransaction);
                 }
             }
         }

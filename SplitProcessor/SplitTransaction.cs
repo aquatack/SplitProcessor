@@ -8,6 +8,7 @@ namespace SplitProcessor
 {
     public class SplitTransaction : Transaction
     {
+        public const string SplitCategoryString = "Split/Multiple Categories";
         private CSVEntry headerEntry;
         private FileHelperEngine<CSVEntry> engine;
         private List<CSVEntry> SplitSubEntries;
@@ -94,7 +95,7 @@ namespace SplitProcessor
         /// <returns><c>true</c> if a split header.</returns>
         public static bool IsSplitHeader(CSVEntry entry)
         {
-            if (entry.CategoryString.Contains("Split/Multiple Categories"))
+            if (entry.CategoryString.Contains(SplitCategoryString))
                 return true;
             return false;
         }
