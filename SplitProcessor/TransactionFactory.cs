@@ -8,13 +8,25 @@ namespace SplitProcessor
     public class TransactionFactory : IEnumerable<string>
     {
         private IEnumerable<CSVEntry> fileLines;
-        //private IEnumerator fileLinesEnumerator;
+
         public TransactionFactory(IEnumerable<CSVEntry> fileLines)
         {
             this.fileLines = fileLines;
-            //this.fileLinesEnumerator = fileLines.GetEnumerator();
         }
 
+        /// <summary>
+        /// Transaction Factory State Machine.
+        /// This yields a new transaction on each call.
+        /// </summary>
+        /// <remarks>Transactions are either standard or split types. Standard ones complete on a single line,
+        /// while splits run across multiple lines. This state machine iterates over the input lines returning
+        /// standard or split transaction strings as appropriate. For split transactions, it will continue to 
+        /// consume lines until the split transaction indicates that it is complete. At this point, the state
+        /// machine will have already consumed the next line (i.e. all/part of the next transaction). The 
+        /// state machine therefore has a queue that it uses to buffer splits allowing it to start building
+        /// the next transaction without losing the line. The Queue is flushed at the next available opportunity
+        /// before continuing to process the next transaction.</remarks>
+        /// <returns>String representing the delimited representation of the transaction.</returns>
         public IEnumerator<string> GetEnumerator()
         {
             Queue<string> tQueue = new Queue<string>();

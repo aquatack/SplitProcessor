@@ -26,18 +26,22 @@ namespace SplitProcessor
             using (var writer = new StreamWriter(outputPath))
             {
                 writer.Write(lines.GetHeader);
-
-                var engine = new FileHelperEngine<CSVEntry>();
-                var aggregateLines = lines.Aggregate((working, next) => { return working + Environment.NewLine + next; });
-                aggregateLines = aggregateLines.TrimEnd('\r','\n','\0');
-                var entries = engine.ReadString(aggregateLines);
-
-                var trans = new TransactionFactory(entries);
-                foreach (var line in trans)
+                var entries = GetEntriesFromLines(lines);
+                var transactions = new TransactionFactory(entries);
+                foreach (var line in transactions)
                 {
                     writer.Write(line);
                 }
             }
+        }
+
+        private static CSVEntry[] GetEntriesFromLines(NonBlankFileLines lines)
+        {
+            var engine = new FileHelperEngine<CSVEntry>();
+            var aggregateLines = lines.Aggregate((working, next) => { return working + Environment.NewLine + next; });
+            aggregateLines = aggregateLines.TrimEnd('\r', '\n', '\0');
+            var entries = engine.ReadString(aggregateLines);
+            return entries;
         }
     }
 }

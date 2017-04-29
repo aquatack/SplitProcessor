@@ -32,9 +32,7 @@ namespace SplitProcessor
 
         public override string FullTransactionString()
         {
-            var transactionString = this.helperEngine.WriteString(new[] { this.transactionLine });
-            //return this.transactionLine.ToDelimitedString() + Environment.NewLine;
-            return transactionString;// + Environment.NewLine;
+            return this.helperEngine.WriteString(new[] { this.transactionLine });
         }
 
         public static bool IsStandardTransaction(CSVEntry entry)

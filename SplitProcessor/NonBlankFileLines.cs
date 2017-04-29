@@ -2,9 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 using FileHelpers;
 
@@ -22,7 +20,6 @@ namespace SplitProcessor
         {
             this.reader = new StreamReader(filename);
             this.header = RetrieveHeader();
-            //RetrieveBody(this.reader);
         }
 
         private void RetrieveBody(StreamReader reader)

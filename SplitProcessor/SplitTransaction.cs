@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 using FileHelpers;
@@ -10,7 +9,10 @@ namespace SplitProcessor
     public class SplitTransaction : Transaction
     {
         private CSVEntry headerEntry;
-        private FileHelperEngine<CSVEntry> engine = new FileHelperEngine<CSVEntry>();
+        private FileHelperEngine<CSVEntry> engine;
+        private List<CSVEntry> SplitSubEntries;
+        private bool TransComplete;
+
         public CSVEntry HeaderEntry
         {
             get
@@ -22,22 +24,20 @@ namespace SplitProcessor
             {
                 if (this.headerEntry != null)
                     throw new ApplicationException();
+
                 this.headerEntry = value;
             }
         }
 
-        private List<CSVEntry> SplitSubEntries;
-        private bool TransComplete;
-
         public SplitTransaction()
         {
             this.SplitSubEntries = new List<CSVEntry>();
-            TransComplete = false;
+            this.TransComplete = false;
+            this.engine = new FileHelperEngine<CSVEntry>();
         }
 
         public override bool AddEntry(CSVEntry subentry)
         {
-            //this.TransComplete = false;
             if (IsSplitHeader(subentry) && this.HeaderEntry == null)
             {
                 this.HeaderEntry = subentry;
@@ -48,6 +48,10 @@ namespace SplitProcessor
             }
             else
             {
+                // if we're adding to a split transaction but it's not
+                // either a header or split body, then this must be from the
+                // next transaction. Indiciate that we're done and return
+                // false.
                 if (this.HeaderEntry != null)
                     this.TransComplete = true;
                 else
@@ -61,6 +65,7 @@ namespace SplitProcessor
 
         public override bool TransactionComplete()
         {
+            // ToDo: Check the sub entries all add up.
             return this.TransComplete;
         }
 
@@ -68,9 +73,7 @@ namespace SplitProcessor
         {
             var builder = new StringBuilder();
             builder.AppendLine(this.engine.WriteString(new[] { this.HeaderEntry }).TrimEnd('\r', '\n'));
-            //builder.AppendLine(this.HeaderEntry.ToDelimitedString());
 
-            // ToDo: get the coloumn indexes from the file header.
             // parse the header string to get: Num (0), Date(1), Payee(2) and Account(3)
             foreach (var entry in this.SplitSubEntries)
             {
@@ -79,27 +82,16 @@ namespace SplitProcessor
                 entry.Payee = this.HeaderEntry.Payee;
                 entry.Account = this.HeaderEntry.Account;
                 builder.AppendLine(this.engine.WriteString(new[] { entry }).TrimEnd('\r', '\n'));
-
-                //var parts = line.Split(',');
-                //ReplaceSegments(0, parts);
-                //ReplaceSegments(1, parts);
-                //ReplaceSegments(2, parts);
-                //ReplaceSegments(3, parts);
-                //var result = parts.Aggregate((x, y) => { return x + "," + y; });
-                //builder.AppendLine(result);
             }
 
-            
-            //engi
             return builder.ToString();
         }
 
-        //private void ReplaceSegments(int index, string[] parts)
-        //{
-        //    if (string.IsNullOrWhiteSpace(parts[index]))
-        //        parts[index] = this.HeaderEntry.Split(',')[index];
-        //}
-
+        /// <summary>
+        /// Indiciates if the CSVEntry indicates that it's a split header.
+        /// </summary>
+        /// <param name="entry">CSVEntry to check.</param>
+        /// <returns><c>true</c> if a split header.</returns>
         public static bool IsSplitHeader(CSVEntry entry)
         {
             if (entry.CategoryString.Contains("Split/Multiple Categories"))
@@ -112,26 +104,14 @@ namespace SplitProcessor
         /// this is part of a multi-line split transaction.
         /// </summary>
         /// <remarks>Note that this does not detect the Split header.</remarks>
-        /// <param name="entry">line to examins</param>
+        /// <param name="entry">line to examine</param>
         /// <returns><c>true</c> if part of a split transaction.</returns>
         public static bool IsSplitSubEntry(CSVEntry entry)
         {
             if (entry == null)
                 return false;
 
-            //var stringSections = entry.Split(',');
-            //if (stringSections.Count() == 1)
-            //    return false;
-
             return !entry.TransactionDate.HasValue;
-
-            //bool dateFound = false;
-            //foreach (var substring in stringSections)
-            //{
-            //    DateTime date;
-            //    dateFound |= DateTime.TryParse(substring, out date);
-            //}
-            //return !dateFound;
         }
     }
 }
