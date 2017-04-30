@@ -24,7 +24,7 @@ namespace SplitProcessor
             set
             {
                 if (this.headerEntry != null)
-                    throw new ApplicationException();
+                    throw new ApplicationException("Attempted to overwrite an existing split header.");
 
                 this.headerEntry = value;
             }
@@ -106,6 +106,9 @@ namespace SplitProcessor
         /// <returns><c>true</c> if a split header.</returns>
         public static bool IsSplitHeader(CSVEntry entry)
         {
+            if (entry == null)
+                throw new ApplicationException("entry is null.");
+
             if (entry.CategoryString.Contains(SplitCategoryString))
                 return true;
             return false;

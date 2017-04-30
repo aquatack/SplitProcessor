@@ -35,6 +35,12 @@ namespace SplitProcessor
             }
         }
 
+        /// <summary>
+        /// Returns an array of all the csv lines from the file.
+        /// ToDo: Make this lazy in line with the rest of the application. Also, refactor into separate class.
+        /// </summary>
+        /// <param name="lines">Non-blank lines to parse.</param>
+        /// <returns>Array of <see cref="CSVEntry"/> objects representing the data contained in the file.</returns>
         private static CSVEntry[] GetEntriesFromLines(NonBlankFileLines lines)
         {
             var engine = new FileHelperEngine<CSVEntry>();

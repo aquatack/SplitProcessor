@@ -66,8 +66,8 @@ namespace SplitProcessor.Tests
             };
 
             // test
-            var factory = new TransactionFactory(new[] { entry1 });
-            var result = factory.ToArray();
+            var factory = new TransactionFactory(new[] { entry1, entry2, entry3 });
+            var result = factory.Single();
 
             // result
 
@@ -76,7 +76,9 @@ namespace SplitProcessor.Tests
             // transactions not transaction strings. this should allow easier testing. 3) Work out a way to flush the factory (possibly
             // automatically: standards flush after every line, splits flush once everything adds up).
 
-            var expected = "123,2001-12-25,\"Evil corp\",Account 1,\"A really awesome thing.\",\"Category 1\",Big Purchase,100.00\r\n";
+            var expected = "123,2001-12-25,\"Evil corp\",Account 1,\"A really awesome thing.\",\"Split/Multiple Categories\",Big Purchase,100.00\r\n" +
+                           "123,2001-12-25,\"Evil corp\",Account 1,\"Part 1.\",\"Groceries\",,20.00\r\n" +
+                           "123,2001-12-25,\"Evil corp\",Account 1,\"Part 2.\",\"Gifts\",,80.00\r\n";
             Assert.AreEqual(expected, result);
         }
     }
