@@ -14,6 +14,10 @@ namespace SplitProcessor
             this.itemEntries = itemEntries;
         }
 
+        /// <summary>
+        /// ToDo: Return transactions instead of their string representations.
+        /// </summary>
+        /// <returns></returns>
         public IEnumerator<string> GetEnumerator()
         {
             return GetTransactionEnumerator();
