@@ -163,30 +163,5 @@ namespace SplitProcessor.Tests
                            "123,2001-12-25,\"Evil corp\",Account 1,\"Part 2.\",\"Gifts\",,81.00\r\n";
             Assert.AreEqual(expected, result);
         }
-
-        [TestMethod()]
-        public void coming()
-        {
-            // setup
-            var singleCSVEntry = new CSVEntry
-            {
-                Number = 123,
-                Account = "Account 1",
-                Amount = 100.00M,
-                CategoryString = "Category 1",
-                Classification = "Big Purchase",
-                Memo = "A really awesome thing.",
-                Payee = "Evil corp",
-                TransactionDate = new DateTime(2001, 12, 25)
-            };
-
-            // test
-            var factory = new TransactionFactory(new[] { singleCSVEntry });
-            var result = factory.Single();
-
-            // result
-            var expected = "123,2001-12-25,\"Evil corp\",Account 1,\"A really awesome thing.\",\"Category 1\",Big Purchase,100.00\r\n";
-            Assert.AreEqual(expected, result);
-        }
     }
 }
