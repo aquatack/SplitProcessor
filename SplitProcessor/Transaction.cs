@@ -6,12 +6,12 @@
     public abstract class Transaction
     {
         /// <summary>
-        /// Method to a new line entry into the transaction.
+        /// Method to add a new line entry into the transaction.
         /// </summary>
         /// <remarks>For split transactions, this might be called
         /// multiple times to build up the complete representation of the transaction.</remarks>
-        /// <param name="entry">A CSVEntry containing some or all of the transaction data.</param>
-        /// <returns>true if the entry was valid for the transaction and successfully added.</returns>
+        /// <param name="entry">A <see cref="CSVEntry"/> containing some or all of the transaction data.</param>
+        /// <returns><c>true</c> if the entry was valid for the transaction and successfully added. <c>false</c> otherwise.</returns>
         public abstract bool AddEntry(CSVEntry entry);
 
         /// <summary>
@@ -19,7 +19,7 @@
         /// to represent a complete entity.
         /// </summary>
         /// <returns><c>true</c> if the transaction is complete.</returns>
-        public abstract bool TransactionComplete();
+        public abstract bool IsTransactionComplete();
 
         /// <summary>
         /// The delimited string representation of the transaction.

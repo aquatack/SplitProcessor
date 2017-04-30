@@ -49,8 +49,8 @@ namespace SplitProcessor
             }
             else
             {
-                // if we're adding to a split transaction but it's not
-                // either a header or split body, then this must be from the
+                // if we're adding to a split transaction but it's 
+                // neither a split header nor constituent, then this must be from the
                 // next transaction. Indiciate that we're done and return
                 // false.
                 if (this.HeaderEntry != null)
@@ -64,10 +64,21 @@ namespace SplitProcessor
             return true;
         }
 
-        public override bool TransactionComplete()
+        public override bool IsTransactionComplete()
         {
-            // ToDo: Check the sub entries all add up.
-            return this.TransComplete;
+            if (this.TransComplete)
+            {
+                decimal subtotal = 0M;
+                foreach (var entry in this.SplitSubEntries)
+                {
+                    subtotal += entry.Amount;
+                }
+                if (subtotal == this.HeaderEntry.Amount)
+                    return true;
+                else
+                    throw new ApplicationException("The split transaction thinks it's complete, but the constituent entries don't add up.");
+            }
+            return false;
         }
 
         public override string FullTransactionString()
@@ -110,7 +121,7 @@ namespace SplitProcessor
         public static bool IsSplitSubEntry(CSVEntry entry)
         {
             if (entry == null)
-                return false;
+                throw new ApplicationException("entry is null.");
 
             return !entry.TransactionDate.HasValue;
         }

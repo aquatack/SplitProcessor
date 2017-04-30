@@ -25,7 +25,7 @@ namespace SplitProcessor
             return false;
         }
 
-        public override bool TransactionComplete()
+        public override bool IsTransactionComplete()
         {
             return true;
         }
