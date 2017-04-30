@@ -57,6 +57,14 @@ namespace SplitProcessor
                     currentTransaction = null;
                 }
             }
+            // If a split transaction is the final thing in the list, the split won't know it's completed (as it
+            // needs to see a standard line before it can complete). In this case, we just need to assume it's 
+            // complete, and return it. Also, flush the queue again just in case.
+            yield return currentTransaction.FullTransactionString();
+            while (tQueue.Any())
+            {
+                yield return tQueue.Dequeue();
+            }
         }
 
         private Transaction GetTranaction(CSVEntry entry)
