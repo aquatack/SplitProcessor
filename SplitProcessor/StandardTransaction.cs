@@ -14,6 +14,14 @@ namespace SplitProcessor
         private bool transComplete = false;
         private FileHelperEngine<CSVEntry> helperEngine = new FileHelperEngine<CSVEntry>();
 
+        public override bool IsTransactionComplete
+        {
+            get
+            {
+                return true;
+            }
+        }
+
         public override bool AddEntry(CSVEntry entry)
         {
             if (IsStandardTransaction(entry))
@@ -23,11 +31,6 @@ namespace SplitProcessor
                 return true;
             }
             return false;
-        }
-
-        public override bool TransactionComplete()
-        {
-            return true;
         }
 
         public override string FullTransactionString()

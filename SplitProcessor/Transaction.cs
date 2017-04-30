@@ -19,7 +19,7 @@
         /// to represent a complete entity.
         /// </summary>
         /// <returns><c>true</c> if the transaction is complete.</returns>
-        public abstract bool TransactionComplete();
+        public abstract bool IsTransactionComplete { get; }
 
         /// <summary>
         /// The delimited string representation of the transaction.

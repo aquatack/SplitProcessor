@@ -24,9 +24,28 @@ namespace SplitProcessor
             set
             {
                 if (this.headerEntry != null)
-                    throw new ApplicationException();
+                    throw new ApplicationException("Trying to set another split header to an existing split transaction that already has a header set.");
 
                 this.headerEntry = value;
+            }
+        }
+
+        public override bool IsTransactionComplete
+        {
+            get
+            {
+                if (this.SplitSubEntries == null || this.HeaderEntry == null)
+                    return false;
+
+                decimal subTotal = 0M;
+                foreach (var subEntry in this.SplitSubEntries)
+                {
+                    subTotal += subEntry.Amount;
+                }
+                if (subTotal == this.HeaderEntry.Amount)
+                    return true;
+
+                return false;
             }
         }
 
@@ -39,6 +58,9 @@ namespace SplitProcessor
 
         public override bool AddEntry(CSVEntry subentry)
         {
+            if (this.IsTransactionComplete)
+                throw new ApplicationException("Shouldn't be adding another entry to the split transaction when it's already complete.");
+
             if (IsSplitHeader(subentry) && this.HeaderEntry == null)
             {
                 this.HeaderEntry = subentry;
@@ -49,25 +71,10 @@ namespace SplitProcessor
             }
             else
             {
-                // if we're adding to a split transaction but it's not
-                // either a header or split body, then this must be from the
-                // next transaction. Indiciate that we're done and return
-                // false.
-                if (this.HeaderEntry != null)
-                    this.TransComplete = true;
-                else
-                    this.TransComplete = false;
-
-                return false;
+                throw new ApplicationException("Trying to add a standard transaction entry (or another split header) to an existing unfinished split transaction.");
             }
 
             return true;
-        }
-
-        public override bool TransactionComplete()
-        {
-            // ToDo: Check the sub entries all add up.
-            return this.TransComplete;
         }
 
         public override string FullTransactionString()
@@ -89,10 +96,10 @@ namespace SplitProcessor
         }
 
         /// <summary>
-        /// Indiciates if the CSVEntry indicates that it's a split header.
+        /// Indiciates if the <see cref="CSVEntry"/> indicates that it's a split header.
         /// </summary>
-        /// <param name="entry">CSVEntry to check.</param>
-        /// <returns><c>true</c> if a split header.</returns>
+        /// <param name="entry"><see cref="CSVEntry"/> to check.</param>
+        /// <returns><c>true</c> if a split header. <c>false</c> otherwise.</returns>
         public static bool IsSplitHeader(CSVEntry entry)
         {
             if (entry.CategoryString.Contains(SplitCategoryString))
@@ -106,7 +113,7 @@ namespace SplitProcessor
         /// </summary>
         /// <remarks>Note that this does not detect the Split header.</remarks>
         /// <param name="entry">line to examine</param>
-        /// <returns><c>true</c> if part of a split transaction.</returns>
+        /// <returns><c>true</c> if believed to a sub-entry of a split transaction. <c>false</c> otherwise.</returns>
         public static bool IsSplitSubEntry(CSVEntry entry)
         {
             if (entry == null)
